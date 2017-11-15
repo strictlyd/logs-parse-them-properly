@@ -1,7 +1,6 @@
 'use strict'
 
-const mergeSort = require('mergesort')
-const moment    = require('moment')
+const Helper = require('./helper')
 
 module.exports = (logSources, printer) => {
     let logs         = []
@@ -12,13 +11,13 @@ module.exports = (logSources, printer) => {
     while (true) {
         // Because we can't load all log entries into memory,
         // get the earliest log entry from each log source.
-        currentLogs = getNextLogEntryFromEachLogSource(logSources).concat(previousLogs)
+        currentLogs = Helper.getNextLogEntryFromEachLogSource(logSources).concat(previousLogs)
 
         if (currentLogs.length === 0) {
             break;
         }
 
-        let sortedCurrentLogs  = sortLogEntries(currentLogs)
+        let sortedCurrentLogs  = Helper.sortLogEntries(currentLogs)
         let currentEarliestLog = sortedCurrentLogs.splice(0, 1)[0]
 
         // Loop exit condition when all log sources have been drained
@@ -30,17 +29,4 @@ module.exports = (logSources, printer) => {
     }
 
     printer.done()
-}
-
-
-function getNextLogEntryFromEachLogSource(logSources) {
-    return logSources.map(logSource => logSource.pop())
-}
-
-function sortLogEntries(logEntries) {
-    return mergeSort(sortDateComparator, logEntries)
-}
-
-function sortDateComparator(logSourceA, logSourceB) {
-    return moment(logSourceA.date).valueOf() - moment(logSourceB.date).valueOf()
 }
